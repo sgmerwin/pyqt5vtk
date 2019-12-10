@@ -15,15 +15,35 @@ class vtkTimerCallback():
 
     def execute(self, obj, event):
         self.actor.SetPosition(self.timer_count, self.timer_count, 0)
+
         iren = obj
         iren.GetRenderWindow().Render()
         if self.count == 0:
             self.timer_count += 1
-        if self.timer_count == 200:
+
+        if self.timer_count > 200:
             self.count = 1
         if self.count == 1:
             self.timer_count -= 1
-        if self.timer_count == -200:
+
+        if self.timer_count < -200:
+            self.count = 0
+
+    def execute2(self, obj, event):
+        #self.actor.RotateX(self.timer_count)
+        self.actor.RotateY(self.timer_count)
+        #self.actor.RotateZ(self.timer_count)
+
+        iren = obj
+        iren.GetRenderWindow().Render()
+        if self.count == 0:
+            self.timer_count -= .01
+        if self.timer_count < -2:
+            self.count = 1
+            #self.timer_count = 0
+        if self.count == 1:
+            self.timer_count += .01
+        if self.timer_count > 2:
             self.count = 0
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -38,7 +58,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.vtkWidget = QVTKRenderWindowInteractor(self.frame)
         self.vl = Qt.QVBoxLayout()
         self.vl.addWidget(self.vtkWidget)
-
 
         self.ren = vtk.vtkRenderer()
         self.vtkWidget.GetRenderWindow().AddRenderer(self.ren)
@@ -61,25 +80,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         mapper2 = vtk.vtkPolyDataMapper()
         mapper2.SetInputConnection(source.GetOutputPort())
 
-
         # Create an actor
         actor = vtk.vtkActor()
         actor.SetMapper(mapper)
         actor2 = vtk.vtkActor()
         actor2.SetMapper(mapper2)
         actor2.SetPosition((100, 100, 100))
-
-
-        # def runA():
-        #     while True:
-        #         actor2.SetPosition((-100,-100,0))
-        #         time.sleep(4)
-        #         actor2.SetPosition((100, 100, 100))
-        #         time.sleep(4)
-        #
-        # t1 = threading.Thread(target = runA)
-        # t1.setDaemon(True)
-        # t1.start()
 
         self.ren.AddActor(actor)
         self.ren.AddActor(actor2)
@@ -95,9 +101,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         cb = vtkTimerCallback()
         cb.actor = actor2
+        cb2 = vtkTimerCallback()
+        cb2.actor = actor
+        self.vtkWidget.AddObserver('TimerEvent', cb2.execute2)
         self.vtkWidget.AddObserver('TimerEvent', cb.execute)
-        self.vtkWidget.CreateRepeatingTimer(1)
-
+        self.vtkWidget.CreateRepeatingTimer(100)
 
         self.iren.Start()
 
