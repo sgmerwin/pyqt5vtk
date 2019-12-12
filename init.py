@@ -1,5 +1,9 @@
 import vtk
 import sys
+import os
+import psutil
+import math
+
 from PyQt5 import QtCore, QtGui
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 from PyQt5.QtWidgets import QMainWindow, QApplication, QDialog, QFileDialog
@@ -7,6 +11,13 @@ from foo import Ui_MainWindow
 from PyQt5 import Qt
 import threading
 import time
+
+
+def memory():
+    process = psutil.Process(os.getpid())
+    print(process.memory_info().rss / math.pow(10, 6))
+
+thread1 = threading.Thread(target=memory())
 
 class vtkTimerCallback():
     def __init__(self):
@@ -30,9 +41,9 @@ class vtkTimerCallback():
             self.count = 0
 
     def execute2(self, obj, event):
-        #self.actor.RotateX(self.timer_count)
+        # self.actor.RotateX(self.timer_count)
         self.actor.RotateY(self.timer_count)
-        #self.actor.RotateZ(self.timer_count)
+        # self.actor.RotateZ(self.timer_count)
 
         iren = obj
         iren.GetRenderWindow().Render()
@@ -40,7 +51,7 @@ class vtkTimerCallback():
             self.timer_count -= .01
         if self.timer_count < -2:
             self.count = 1
-            #self.timer_count = 0
+            # self.timer_count = 0
         if self.count == 1:
             self.timer_count += .01
         if self.timer_count > 2:
@@ -50,11 +61,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         self.setupUi(self)
-        #self.pushButton.clicked.connect(self.OpenVTK)
         self.OpenVTK()
+        # self.pushButton.clicked.connect(self.OpenVTK)
 
     def OpenVTK(self):
-
         self.vtkWidget = QVTKRenderWindowInteractor(self.frame)
         self.vl = Qt.QVBoxLayout()
         self.vl.addWidget(self.vtkWidget)
@@ -93,18 +103,28 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.ren.ResetCamera()
 
         self.frame.setLayout(self.vl)
-        #self.setCentralWidget(self.frame)
+        # self.setCentralWidget(self.frame)
 
         self.show()
         self.iren.Initialize()
-        #put timer event here
+        # put timer event here
 
         cb = vtkTimerCallback()
         cb.actor = actor2
         cb2 = vtkTimerCallback()
         cb2.actor = actor
+
+        def stop():
+            cb2.actor = None
+
+        def start():
+            cb2.actor = actor
+
         self.vtkWidget.AddObserver('TimerEvent', cb2.execute2)
         self.vtkWidget.AddObserver('TimerEvent', cb.execute)
+        self.stopButton.clicked.connect(stop)
+        self.startButton.clicked.connect(start)
+
         self.vtkWidget.CreateRepeatingTimer(100)
 
         self.iren.Start()
@@ -113,4 +133,8 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
+    thread1.start()
+    print("thread 1")
+    memory()
+    print("main thread")
     sys.exit(app.exec_())
