@@ -57,6 +57,15 @@ class vtkTimerCallback():
         if self.timer_count > 2:
             self.count = 0
 
+    def execute3(self, obj, event):
+        self.actor.RotateX(0)
+        self.actor.RotateY(0)
+        self.actor.RotateZ(0)
+
+        iren = obj
+        iren.GetRenderWindow().Render()
+
+
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
@@ -91,14 +100,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         mapper2.SetInputConnection(source.GetOutputPort())
 
         # Create an actor
-        actor = vtk.vtkActor()
-        actor.SetMapper(mapper)
-        actor2 = vtk.vtkActor()
-        actor2.SetMapper(mapper2)
-        actor2.SetPosition((100, 100, 100))
+        STLactor = vtk.vtkActor()
+        STLactor.SetMapper(mapper)
+        sphereactor = vtk.vtkActor()
+        sphereactor.SetMapper(mapper2)
+        sphereactor.SetPosition((100, 100, 100))
 
-        self.ren.AddActor(actor)
-        self.ren.AddActor(actor2)
+        self.ren.AddActor(STLactor)
+        self.ren.AddActor(sphereactor)
 
         self.ren.ResetCamera()
 
@@ -109,19 +118,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.iren.Initialize()
         # put timer event here
 
-        cb = vtkTimerCallback()
-        cb.actor = actor2
-        cb2 = vtkTimerCallback()
-        cb2.actor = actor
+        cbSphere = vtkTimerCallback()
+        cbSphere.actor = sphereactor
+        cbSTL = vtkTimerCallback()
+        cbSTL.actor = STLactor
+
+
 
         def stop():
-            cb2.actor = None
+            rotation.RemoveObservers('TimerEvent')
+            rotation.AddObserver('TimerEvent', cbSphere.execute)
 
         def start():
-            cb2.actor = actor
+            self.vtkWidget.AddObserver('TimerEvent', cbSTL.execute2)
 
-        self.vtkWidget.AddObserver('TimerEvent', cb2.execute2)
-        self.vtkWidget.AddObserver('TimerEvent', cb.execute)
+        self.vtkWidget.AddObserver('TimerEvent', cbSTL.execute2)
+        self.vtkWidget.AddObserver('TimerEvent', cbSphere.execute)
+        rotation = self.vtkWidget
         self.stopButton.clicked.connect(stop)
         self.startButton.clicked.connect(start)
 
