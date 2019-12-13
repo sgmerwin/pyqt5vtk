@@ -123,6 +123,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         cbSTL = vtkTimerCallback()
         cbSTL.actor = STLactor
 
+        def getfiles():
+            file = QFileDialog.getOpenFileName(thisWindow, 'Single File', QtCore.QDir.rootPath(), '*.stl')
+            str = file[0]
+            reader.SetFileName(str)
+            reader.Update()
+            mapper.SetInputConnection(reader.GetOutputPort())
+            STLactor.SetMapper(mapper)
+
 
 
         def stop():
@@ -135,8 +143,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.vtkWidget.AddObserver('TimerEvent', cbSTL.execute2)
         self.vtkWidget.AddObserver('TimerEvent', cbSphere.execute)
         rotation = self.vtkWidget
-        self.stopButton.clicked.connect(stop)
-        self.startButton.clicked.connect(start)
+        thisWindow = self
+        self.stopButton.clicked.connect(getfiles)
+        self.startButton.clicked.connect(getfiles)
 
         self.vtkWidget.CreateRepeatingTimer(100)
 
