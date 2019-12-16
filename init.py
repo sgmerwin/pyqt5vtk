@@ -4,14 +4,12 @@ import os
 import psutil
 import math
 
-from PyQt5 import QtCore, QtGui
+from PyQt5 import QtCore
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
-from PyQt5.QtWidgets import QMainWindow, QApplication, QDialog, QFileDialog
-from foo import Ui_MainWindow
+from PyQt5.QtWidgets import QMainWindow, QApplication, QDialog, QFileDialog, QWidget
+from foo import Ui4_MainWindow
 from PyQt5 import Qt
 import threading
-import time
-
 
 def memory():
     process = psutil.Process(os.getpid())
@@ -65,13 +63,18 @@ class vtkTimerCallback():
         iren = obj
         iren.GetRenderWindow().Render()
 
-
-class MainWindow(QMainWindow, Ui_MainWindow):
+class MainWindow(QMainWindow, Ui4_MainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         self.setupUi(self)
         self.OpenVTK()
-        # self.pushButton.clicked.connect(self.OpenVTK)
+        self.update()
+
+    def update(self):
+        self.width = self.width()
+        self.height = self.height()
+        self.frame.setGeometry(self.width/2, 0, self.width/2, self.height)
+
 
     def OpenVTK(self):
         self.vtkWidget = QVTKRenderWindowInteractor(self.frame)
@@ -131,8 +134,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             mapper.SetInputConnection(reader.GetOutputPort())
             STLactor.SetMapper(mapper)
 
-
-
         def stop():
             rotation.RemoveObservers('TimerEvent')
             rotation.AddObserver('TimerEvent', cbSphere.execute)
@@ -144,8 +145,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.vtkWidget.AddObserver('TimerEvent', cbSphere.execute)
         rotation = self.vtkWidget
         thisWindow = self
-        self.stopButton.clicked.connect(getfiles)
-        self.startButton.clicked.connect(getfiles)
+
+        self.stopButton.clicked.connect(stop)
+        self.startButton.clicked.connect(start)
+        self.STLButton.clicked.connect(getfiles)
 
         self.vtkWidget.CreateRepeatingTimer(100)
 
