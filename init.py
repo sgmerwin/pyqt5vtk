@@ -20,7 +20,9 @@ thread1 = threading.Thread(target=memory())
 class vtkTimerCallback():
     def __init__(self):
         self.timer_count = 0
+        self.timer_count2 = 0
         self.count = 0
+        self.count2 = 0
         self.timerVar2 = 0
         self.timerVar1 = 0
 
@@ -28,16 +30,17 @@ class vtkTimerCallback():
     def execute(self, obj, event):
         if self.timerVar1 == 0:
             self.actor.SetPosition(0, self.timer_count, 420)
-            if self.count == 0:
+            if self.count == 1:
                 self.timer_count += 1
 
-            if self.timer_count > 200:
-                self.count = 1
-            if self.count == 1:
+            if self.timer_count > 500 and self.count == 1:
+                self.count = 2
+
+            if self.count == 3:
                 self.timer_count -= 1
 
-            if self.timer_count < -200:
-                self.count = 0
+            if self.timer_count < -500 and self.count == 3:
+                self.count = 2
 
             iren = obj
             iren.Initialize()
@@ -73,16 +76,17 @@ class vtkTimerCallback():
     def execute3(self, obj, event):
         if self.timerVar1 == 0:
             self.actor.SetPosition(760, self.timer_count, 220)
-            if self.count == 0:
+            if self.count == 1:
                 self.timer_count += 1
 
-            if self.timer_count > 200:
-                self.count = 1
-            if self.count == 1:
+            if self.timer_count > 500 and self.count == 1:
+                self.count = 2
+
+            if self.count == 3:
                 self.timer_count -= 1
 
-            if self.timer_count < -200:
-                self.count = 0
+            if self.timer_count < -500 and self.count == 3:
+                self.count = 2
 
             iren = obj
             iren.Initialize()
@@ -95,22 +99,69 @@ class vtkTimerCallback():
     def execute4(self, obj, event):
         if self.timerVar1 == 0:
             self.actor.SetPosition(-760, self.timer_count, 220)
-            if self.count == 0:
+            if self.count == 1:
                 self.timer_count += 1
 
-            if self.timer_count > 200:
-                self.count = 1
-            if self.count == 1:
+            if self.timer_count > 500 and self.count == 1:
+                self.count = 2
+
+            if self.count == 3:
                 self.timer_count -= 1
 
-            if self.timer_count < -200:
-                self.count = 0
+            if self.timer_count < -500 and self.count == 3:
+                self.count = 2
 
             iren = obj
             iren.Initialize()
 
         if self.timerVar1 == 1:
             self.actor.SetPosition(-760, self.timer_count, 220)
+            iren = obj
+            iren.Initialize()
+
+    def execute5(self, obj, event):
+        if self.timerVar1 == 0:
+            self.actor.SetPosition(0, self.timer_count-25, 500+self.timer_count2)
+            if self.count == 1:
+                self.timer_count += 1
+
+            if self.timer_count > 500 and self.count == 1:
+                self.count = 2
+
+            if self.count == 3:
+                self.timer_count -= 1
+
+            if self.timer_count < -500 and self.count == 3:
+                self.count = 2
+
+            iren = obj
+            iren.Initialize()
+
+        if self.timerVar1 == 1:
+            self.actor.SetPosition(0, self.timer_count-25, 500+self.timer_count2)
+            iren = obj
+            iren.Initialize()
+
+    def execute6(self, obj, event):
+        if self.timerVar2 == 0:
+            self.actor.SetPosition(0, self.timer_count-25, 500+self.timer_count2)
+            if self.count2 == 1:
+                self.timer_count2 += 1
+
+            if self.timer_count2 > 200 and self.count2 == 1:
+                self.count2 = 2
+
+            if self.count2 == 3:
+                self.timer_count2 -= 1
+
+            if self.timer_count2 < -200 and self.count2 == 3:
+                self.count2 = 2
+
+            iren = obj
+            iren.Initialize()
+
+        if self.timerVar1 == 1:
+            self.actor.SetPosition(0, self.timer_count-25, 500+self.timer_count2)
             iren = obj
             iren.Initialize()
 
@@ -159,6 +210,12 @@ class MainWindow(QMainWindow, Ui4_MainWindow):
         source3.SetZLength(150)
         source2.SetCenter(0, 0, 0)
 
+        source4 = vtk.vtkCubeSource()
+        source4.SetXLength(200)
+        source4.SetYLength(25)
+        source4.SetZLength(550)
+        source4.SetCenter(0, 0, 0)
+
 
 
         filename = "/Users/steve/PycharmProjects/vtktest/CylinderHead-stl/CylinderHead-binary.stl"
@@ -177,6 +234,8 @@ class MainWindow(QMainWindow, Ui4_MainWindow):
         mapperBase3.SetInputConnection(source2.GetOutputPort())
         mapperBase4 = vtk.vtkPolyDataMapper()
         mapperBase4.SetInputConnection(source3.GetOutputPort())
+        mapperBase5 = vtk.vtkPolyDataMapper()
+        mapperBase5.SetInputConnection(source4.GetOutputPort())
 
         # Create an actor
         #STLactor = vtk.vtkActor()
@@ -198,12 +257,17 @@ class MainWindow(QMainWindow, Ui4_MainWindow):
         BaseActor4.SetMapper(mapperBase4)
         BaseActor4.GetProperty().SetColor(0, 0, 1.0)
         BaseActor4.SetPosition(0, 0, 380)
+        BaseActor5 = vtk.vtkActor()
+        BaseActor5.SetMapper(mapperBase5)
+        BaseActor5.GetProperty().SetColor(1.0, 1.0, 0)
+        BaseActor5.SetPosition(0, -25, 500)
 
         #self.ren.AddActor(STLactor)
         self.ren.AddActor(BaseActor)
         self.ren.AddActor(BaseActor2)
         self.ren.AddActor(BaseActor3)
         self.ren.AddActor(BaseActor4)
+        self.ren.AddActor(BaseActor5)
 
 
         self.ren.ResetCamera()
@@ -218,9 +282,11 @@ class MainWindow(QMainWindow, Ui4_MainWindow):
         cbBase2 = vtkTimerCallback()
         cbBase3 = vtkTimerCallback()
         cbBase4 = vtkTimerCallback()
+        cbBase5 = vtkTimerCallback()
         cbBase2.actor = BaseActor2
         cbBase3.actor = BaseActor3
         cbBase4.actor = BaseActor4
+        cbBase5.actor = BaseActor5
         #cbSTL = vtkTimerCallback()
         #cbSTL.actor = STLactor
 
@@ -244,20 +310,50 @@ class MainWindow(QMainWindow, Ui4_MainWindow):
         def startR():
             cbSTL.timerVar2 = 0
 
-        def stopL():
+        def stopY():
             cbBase2.timerVar1 = 1
             cbBase3.timerVar1 = 1
             cbBase4.timerVar1 = 1
+            cbBase5.timerVar1 = 1
 
-        def startL():
+        def forwardY():
             cbBase2.timerVar1 = 0
             cbBase3.timerVar1 = 0
             cbBase4.timerVar1 = 0
+            cbBase5.timerVar1 = 0
+            cbBase2.count = 3
+            cbBase3.count = 3
+            cbBase4.count = 3
+            cbBase5.count = 3
+
+        def backY():
+            cbBase2.timerVar1 = 0
+            cbBase3.timerVar1 = 0
+            cbBase4.timerVar1 = 0
+            cbBase5.timerVar1 = 0
+            cbBase2.count = 1
+            cbBase3.count = 1
+            cbBase4.count = 1
+            cbBase5.count = 1
+
+        def upZ():
+            cbBase5.timerVar2 = 0
+            cbBase5.count2 = 1
+
+        def downZ():
+            cbBase5.timerVar2 = 0
+            cbBase5.count2 = 3
+
+        def stopZ():
+            cbBase5.timerVar2 = 1
+            cbBase5.count2 = 2
 
         #self.vtkWidget.AddObserver('TimerEvent', cbSTL.execute2)
         self.vtkWidget.AddObserver('TimerEvent', cbBase2.execute3)
         self.vtkWidget.AddObserver('TimerEvent', cbBase3.execute4)
         self.vtkWidget.AddObserver('TimerEvent', cbBase4.execute)
+        self.vtkWidget.AddObserver('TimerEvent', cbBase5.execute5)
+        self.vtkWidget.AddObserver('TimerEvent', cbBase5.execute6)
 
         #self.stopRotationButton.clicked.connect(stopR)
         #self.startRotationButton.clicked.connect(startR)
@@ -266,8 +362,12 @@ class MainWindow(QMainWindow, Ui4_MainWindow):
         except Exception as ex:
             print("Exception in button call")
             print(ex)
-        self.stopLinearButton.clicked.connect(stopL)
-        self.startLinearButton.clicked.connect(startL)
+        self.stopYButton.clicked.connect(stopY)
+        self.forwardYButton.clicked.connect(forwardY)
+        self.backYButton.clicked.connect(backY)
+        self.stopZButton.clicked.connect(stopZ)
+        self.upZButton.clicked.connect(upZ)
+        self.downZButton.clicked.connect(downZ)
 
         self.vtkWidget.CreateRepeatingTimer(1)
 
