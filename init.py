@@ -38,8 +38,14 @@ class vtkTimerCallback():
             if self.timer_count < -200:
                 self.count = 0
 
+            iren = obj
+            iren.Initialize()
+
+
         if self.timerVar1 == 1:
             self.actor.SetPosition(self.timer_count, self.timer_count, 0)
+            iren = obj
+            iren.Initialize()
 
     def execute2(self, obj, event):
         if self.timerVar2 == 0:
@@ -55,9 +61,13 @@ class vtkTimerCallback():
                 self.timer_count += .01
             if self.timer_count > 2:
                 self.count = 0
+            iren = obj
+            iren.Initialize()
 
         if self.timerVar2 == 1:
             self.actor.RotateY(0)
+            iren = obj
+            iren.Initialize()
 
 class MainWindow(QMainWindow, Ui4_MainWindow):
     def __init__(self, parent=None):
