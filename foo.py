@@ -46,20 +46,30 @@ class Ui4_MainWindow(object):
 
         self.horizontalLayout.addLayout(self.verticalLayout,0)
 
-        self.stopButton = QtWidgets.QPushButton(self.centralwidget)
-        self.stopButton.setText("Stop Rotation")
-        self.verticalLayout.addWidget(self.stopButton)
-        self.stopButton.move(0,0)
+        self.stopRotationButton = QtWidgets.QPushButton(self.centralwidget)
+        self.stopRotationButton.setText("Stop Rotation")
+        self.verticalLayout.addWidget(self.stopRotationButton)
+        self.stopRotationButton.move(0,0)
 
-        self.startButton = QtWidgets.QPushButton(self.centralwidget)
-        self.startButton.setText("Start Rotation")
-        self.verticalLayout.addWidget(self.startButton)
-        self.startButton.move(1,0)
+        self.startRotationButton = QtWidgets.QPushButton(self.centralwidget)
+        self.startRotationButton.setText("Start Rotation")
+        self.verticalLayout.addWidget(self.startRotationButton)
+        self.startRotationButton.move(1,0)
 
         self.STLButton = QtWidgets.QPushButton(self.centralwidget)
         self.STLButton.setText("Load STL")
         self.verticalLayout.addWidget(self.STLButton)
-        self.stopButton.move(2,0)
+        self.STLButton.move(2,0)
+
+        self.stopLinearButton = QtWidgets.QPushButton(self.centralwidget)
+        self.stopLinearButton.setText("Stop Linear")
+        self.verticalLayout.addWidget(self.stopLinearButton)
+        self.stopLinearButton.move(3,0)
+
+        self.startLinearButton = QtWidgets.QPushButton(self.centralwidget)
+        self.startLinearButton.setText("Start Linear")
+        self.verticalLayout.addWidget(self.startLinearButton)
+        self.stopLinearButton.move(4, 0)
 
         self.frame = QtWidgets.QFrame(self.centralwidget)
         self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
@@ -67,6 +77,8 @@ class Ui4_MainWindow(object):
         self.frame.setObjectName("frame")
         self.horizontalLayout.addWidget(self.frame)
         self.frame.move(0,1)
+        self.horizontalLayout.setStretchFactor(self.verticalLayout,1)
+        self.horizontalLayout.setStretchFactor(self.frame, 4)
 
         MainWindow.setCentralWidget(self.centralwidget)
 

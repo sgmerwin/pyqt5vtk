@@ -21,47 +21,43 @@ class vtkTimerCallback():
     def __init__(self):
         self.timer_count = 0
         self.count = 0
+        self.timerVar2 = 0
+        self.timerVar1 = 0
 
     def execute(self, obj, event):
-        self.actor.SetPosition(self.timer_count, self.timer_count, 0)
+        if self.timerVar1 == 0:
+            self.actor.SetPosition(self.timer_count, self.timer_count, 0)
+            if self.count == 0:
+                self.timer_count += 1
 
-        iren = obj
-        iren.GetRenderWindow().Render()
-        if self.count == 0:
-            self.timer_count += 1
+            if self.timer_count > 200:
+                self.count = 1
+            if self.count == 1:
+                self.timer_count -= 1
 
-        if self.timer_count > 200:
-            self.count = 1
-        if self.count == 1:
-            self.timer_count -= 1
+            if self.timer_count < -200:
+                self.count = 0
 
-        if self.timer_count < -200:
-            self.count = 0
+        if self.timerVar1 == 1:
+            self.actor.SetPosition(self.timer_count, self.timer_count, 0)
 
     def execute2(self, obj, event):
-        # self.actor.RotateX(self.timer_count)
-        self.actor.RotateY(self.timer_count)
-        # self.actor.RotateZ(self.timer_count)
+        if self.timerVar2 == 0:
+            # self.actor.RotateX(self.timer_count)
+            self.actor.RotateY(self.timer_count)
+            # self.actor.RotateZ(self.timer_count)
+            if self.count == 0:
+                self.timer_count -= .01
+            if self.timer_count < -2:
+                self.count = 1
+                # self.timer_count = 0
+            if self.count == 1:
+                self.timer_count += .01
+            if self.timer_count > 2:
+                self.count = 0
 
-        iren = obj
-        iren.GetRenderWindow().Render()
-        if self.count == 0:
-            self.timer_count -= .01
-        if self.timer_count < -2:
-            self.count = 1
-            # self.timer_count = 0
-        if self.count == 1:
-            self.timer_count += .01
-        if self.timer_count > 2:
-            self.count = 0
-
-    def execute3(self, obj, event):
-        self.actor.RotateX(0)
-        self.actor.RotateY(0)
-        self.actor.RotateZ(0)
-
-        iren = obj
-        iren.GetRenderWindow().Render()
+        if self.timerVar2 == 1:
+            self.actor.RotateY(0)
 
 class MainWindow(QMainWindow, Ui4_MainWindow):
     def __init__(self, parent=None):
@@ -74,7 +70,6 @@ class MainWindow(QMainWindow, Ui4_MainWindow):
         self.width = self.width()
         self.height = self.height()
         self.frame.setGeometry(self.width/2, 0, self.width/2, self.height)
-
 
     def OpenVTK(self):
         self.vtkWidget = QVTKRenderWindowInteractor(self.frame)
@@ -127,30 +122,44 @@ class MainWindow(QMainWindow, Ui4_MainWindow):
         cbSTL.actor = STLactor
 
         def getfiles():
-            file = QFileDialog.getOpenFileName(thisWindow, 'Single File', QtCore.QDir.rootPath(), '*.stl')
-            str = file[0]
-            reader.SetFileName(str)
-            reader.Update()
-            mapper.SetInputConnection(reader.GetOutputPort())
-            STLactor.SetMapper(mapper)
+            try:
+                file = QFileDialog.getOpenFileName(self, 'Single File', QtCore.QDir.rootPath(), '*.stl')
+                if file == None:
+                  file = "/Users/steve/PycharmProjects/vtktest/CylinderHead-stl/CylinderHead-binary.stl"
+                str = file[0]
+                reader.SetFileName(str)
+                reader.Update()
+                mapper.SetInputConnection(reader.GetOutputPort())
+                STLactor.SetMapper(mapper)
+            except Exception as e:
+                print("Exception in method")
+                print(e)
 
-        def stop():
-            rotation.RemoveObservers('TimerEvent')
-            rotation.AddObserver('TimerEvent', cbSphere.execute)
+        def stopR():
+            cbSTL.timerVar2 = 1
 
-        def start():
-            self.vtkWidget.AddObserver('TimerEvent', cbSTL.execute2)
+        def startR():
+            cbSTL.timerVar2 = 0
+
+        def stopL():
+            cbSphere.timerVar1 = 1
+
+        def startL():
+            cbSphere.timerVar1 = 0
 
         self.vtkWidget.AddObserver('TimerEvent', cbSTL.execute2)
         self.vtkWidget.AddObserver('TimerEvent', cbSphere.execute)
-        rotation = self.vtkWidget
-        thisWindow = self
+        self.stopRotationButton.clicked.connect(stopR)
+        self.startRotationButton.clicked.connect(startR)
+        try:
+            self.STLButton.clicked.connect(getfiles)
+        except Exception as ex:
+            print("Exception in button call")
+            print(ex)
+        self.stopLinearButton.clicked.connect(stopL)
+        self.startLinearButton.clicked.connect(startL)
 
-        self.stopButton.clicked.connect(stop)
-        self.startButton.clicked.connect(start)
-        self.STLButton.clicked.connect(getfiles)
-
-        self.vtkWidget.CreateRepeatingTimer(100)
+        self.vtkWidget.CreateRepeatingTimer(1)
 
         self.iren.Start()
 
