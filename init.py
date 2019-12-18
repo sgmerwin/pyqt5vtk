@@ -21,10 +21,12 @@ class vtkTimerCallback():
     def __init__(self):
         self.timer_count = 0
         self.timer_count2 = 0
+        self.timer_count3 = 0
         self.count = 0
         self.count2 = 0
         self.timerVar2 = 0
         self.timerVar1 = 0
+        self.timerVar3 = 0
 
 
     def execute(self, obj, event):
@@ -52,24 +54,24 @@ class vtkTimerCallback():
             iren.Initialize()
 
     def execute2(self, obj, event):
-        if self.timerVar2 == 0:
-            # self.actor.RotateX(self.timer_count)
-            self.actor.RotateY(self.timer_count)
-            # self.actor.RotateZ(self.timer_count)
-            if self.count == 0:
-                self.timer_count -= .01
-            if self.timer_count < -2:
-                self.count = 1
+        if self.timerVar3 == 1:
+            #self.actor.RotateX(self.timer_count3)
+            #self.actor.RotateY(self.timer_count3)
+            self.actor.RotateZ(self.timer_count3)
+
+            self.timer_count3 += .1
+            #if self.timer_count3 >= 10:
+                #self.timer_count3 = 0
                 # self.timer_count = 0
-            if self.count == 1:
-                self.timer_count += .01
-            if self.timer_count > 2:
-                self.count = 0
+            # if self.count == 1:
+            #     self.timer_count += .1
+            # if self.timer_count > 2:
+            #     self.count = 0
             iren = obj
             iren.Initialize()
 
-        if self.timerVar2 == 1:
-            self.actor.RotateY(0)
+        if self.timerVar3 == 0:
+            self.actor.RotateZ(0)
             iren = obj
             iren.Initialize()
 
@@ -257,6 +259,52 @@ class vtkTimerCallback():
             iren = obj
             iren.Initialize()
 
+    def execute11(self, obj, event):
+        if self.timerVar2 == 0:
+            self.actor.SetPosition(0, self.timer_count-110, 150+self.timer_count2)
+            if self.count2 == 1:
+                self.timer_count2 += 1
+
+            if self.timer_count2 > 200 and self.count2 == 1:
+                self.count2 = 2
+
+            if self.count2 == 3:
+                self.timer_count2 -= 1
+
+            if self.timer_count2 < -70 and self.count2 == 3:
+                self.count2 = 2
+
+            iren = obj
+            iren.Initialize()
+
+        if self.timerVar1 == 1:
+            self.actor.SetPosition(0, self.timer_count-110, 150+self.timer_count2)
+            iren = obj
+            iren.Initialize()
+
+    def execute12(self, obj, event):
+        if self.timerVar1 == 0:
+            self.actor.SetPosition(0, self.timer_count - 110, 150 + self.timer_count2)
+            if self.count == 1:
+                self.timer_count += 1
+
+            if self.timer_count > 500 and self.count == 1:
+                self.count = 2
+
+            if self.count == 3:
+                self.timer_count -= 1
+
+            if self.timer_count < -500 and self.count == 3:
+                self.count = 2
+
+            iren = obj
+            iren.Initialize()
+
+        if self.timerVar1 == 1:
+            self.actor.SetPosition(0, self.timer_count - 110, 150 + self.timer_count2)
+            iren = obj
+            iren.Initialize()
+
 class MainWindow(QMainWindow, Ui4_MainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
@@ -290,6 +338,12 @@ class MainWindow(QMainWindow, Ui4_MainWindow):
         source.SetZLength(100)
         source.SetCenter(0, 0, 0)
 
+        source8 = vtk.vtkCubeSource()
+        source8.SetXLength(10)
+        source8.SetYLength(100)
+        source8.SetZLength(100)
+        source8.SetCenter(0, 0, 0)
+
         source2 = vtk.vtkCubeSource()
         source2.SetXLength(25)
         source2.SetYLength(200)
@@ -320,6 +374,26 @@ class MainWindow(QMainWindow, Ui4_MainWindow):
         source6.SetCenter(0, 0, 0)
         source6.SetResolution(100)
 
+        source7 = vtk.vtkTriangle()
+        points = vtk.vtkPoints()
+        points.InsertNextPoint(100.0, 0.0, 0.0)
+        points.InsertNextPoint(0.0, 0.0, 0.0)
+        points.InsertNextPoint(0.0, 0.0, 100.0)
+
+        source7.GetPointIds().SetId(0,0)
+        source7.GetPointIds().SetId(1,1)
+        source7.GetPointIds().SetId(2,2)
+
+        triangles = vtk.vtkCellArray()
+        triangles.InsertNextCell(source7)
+
+        trianglePolyData = vtk.vtkPolyData()
+        trianglePolyData.SetPoints(points)
+        trianglePolyData.SetPolys(triangles)
+
+        #mapperBase8 = vtk.vtkPolyDataMapper()
+        #mapperBase8.SetInputData(trianglePolyData)
+
         filename = "/Users/steve/PycharmProjects/vtktest/CylinderHead-stl/CylinderHead-binary.stl"
         reader = vtk.vtkSTLReader()
         reader.SetFileName(filename)
@@ -342,6 +416,15 @@ class MainWindow(QMainWindow, Ui4_MainWindow):
         mapperBase6.SetInputConnection(source5.GetOutputPort())
         mapperBase7 = vtk.vtkPolyDataMapper()
         mapperBase7.SetInputConnection(source6.GetOutputPort())
+        mapperBase8 = vtk.vtkPolyDataMapper()
+        mapperBase8.SetInputConnection(source8.GetOutputPort())
+
+        BaseActor8 = vtk.vtkActor()
+        BaseActor8.SetMapper(mapperBase8)
+        # BaseActor8.GetProperty().SetColor(1.0, 215 / 255, 0)
+        #BaseActor8.RotateX(-45)
+        # BaseActor8.SetPosition(0,2000,500)
+        BaseActor8.GetProperty().SetColor(0, 0, 1)
 
         # Create an actor
         #STLactor = vtk.vtkActor()
@@ -380,6 +463,7 @@ class MainWindow(QMainWindow, Ui4_MainWindow):
         self.ren.AddActor(BaseActor5)
         self.ren.AddActor(BaseActor6)
         self.ren.AddActor(BaseActor7)
+        self.ren.AddActor(BaseActor8)
 
         self.ren.ResetCamera()
 
@@ -396,12 +480,14 @@ class MainWindow(QMainWindow, Ui4_MainWindow):
         cbBase5 = vtkTimerCallback()
         cbBase6 = vtkTimerCallback()
         cbBase7 = vtkTimerCallback()
+        cbBase8 = vtkTimerCallback()
         cbBase2.actor = BaseActor2
         cbBase3.actor = BaseActor3
         cbBase4.actor = BaseActor4
         cbBase5.actor = BaseActor5
         cbBase6.actor = BaseActor6
         cbBase7.actor = BaseActor7
+        cbBase8.actor = BaseActor8
         #cbSTL = vtkTimerCallback()
         #cbSTL.actor = STLactor
 
@@ -420,10 +506,12 @@ class MainWindow(QMainWindow, Ui4_MainWindow):
                 print(e)
 
         def stopR():
-            cbSTL.timerVar2 = 1
+            cbBase8.timerVar3 = 0
+
 
         def startR():
-            cbSTL.timerVar2 = 0
+            cbBase8.timerVar3 = 1
+
 
         def stopY():
             cbBase2.timerVar1 = 1
@@ -432,6 +520,7 @@ class MainWindow(QMainWindow, Ui4_MainWindow):
             cbBase5.timerVar1 = 1
             cbBase6.timerVar1 = 1
             cbBase7.timerVar1 = 1
+            cbBase8.timerVar1 = 1
 
         def forwardY():
             cbBase2.timerVar1 = 0
@@ -446,6 +535,7 @@ class MainWindow(QMainWindow, Ui4_MainWindow):
             cbBase5.count = 3
             cbBase6.count = 3
             cbBase7.count = 3
+            cbBase8.count = 3
 
         def backY():
             cbBase2.timerVar1 = 0
@@ -454,12 +544,14 @@ class MainWindow(QMainWindow, Ui4_MainWindow):
             cbBase5.timerVar1 = 0
             cbBase6.timerVar1 = 0
             cbBase7.timerVar1 = 0
+            cbBase8.timerVar1 = 0
             cbBase2.count = 1
             cbBase3.count = 1
             cbBase4.count = 1
             cbBase5.count = 1
             cbBase6.count = 1
             cbBase7.count = 1
+            cbBase8.count = 1
 
         def upZ():
             cbBase5.timerVar2 = 0
@@ -468,6 +560,8 @@ class MainWindow(QMainWindow, Ui4_MainWindow):
             cbBase6.count2 = 1
             cbBase7.timerVar2 = 0
             cbBase7.count2 = 1
+            cbBase8.timerVar2 = 0
+            cbBase8.count2 = 1
 
         def downZ():
             cbBase5.timerVar2 = 0
@@ -476,6 +570,8 @@ class MainWindow(QMainWindow, Ui4_MainWindow):
             cbBase6.count2 = 3
             cbBase7.timerVar2 = 0
             cbBase7.count2 = 3
+            cbBase8.timerVar2 = 0
+            cbBase8.count2 = 3
 
         def stopZ():
             cbBase5.timerVar2 = 1
@@ -484,6 +580,8 @@ class MainWindow(QMainWindow, Ui4_MainWindow):
             cbBase6.count2 = 3
             cbBase7.timerVar2 = 1
             cbBase7.count2 = 3
+            cbBase8.timerVar2 = 1
+            cbBase8.count2 = 3
 
         #self.vtkWidget.AddObserver('TimerEvent', cbSTL.execute2)
         self.vtkWidget.AddObserver('TimerEvent', cbBase2.execute3)
@@ -495,9 +593,13 @@ class MainWindow(QMainWindow, Ui4_MainWindow):
         self.vtkWidget.AddObserver('TimerEvent', cbBase6.execute8)
         self.vtkWidget.AddObserver('TimerEvent', cbBase7.execute9)
         self.vtkWidget.AddObserver('TimerEvent', cbBase7.execute10)
+        self.vtkWidget.AddObserver('TimerEvent', cbBase8.execute11)
+        self.vtkWidget.AddObserver('TimerEvent', cbBase8.execute12)
+        self.vtkWidget.AddObserver('TimerEvent', cbBase8.execute2)
 
-        #self.stopRotationButton.clicked.connect(stopR)
-        #self.startRotationButton.clicked.connect(startR)
+
+        self.stopRotationButton.clicked.connect(stopR)
+        self.startRotationButton.clicked.connect(startR)
         try:
             self.STLButton.clicked.connect(getfiles)
         except Exception as ex:
